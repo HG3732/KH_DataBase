@@ -59,3 +59,5 @@ where substr(entrance_date, 1, 2) = 02
     and absence_yn = 'N'
     order by student_name
 ;
+
+select * from tb_student;

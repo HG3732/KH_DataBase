@@ -11,11 +11,35 @@ where not lengthb(professor_name) = 9
 ;
 
 --3
-select professor_name, (100 - substr(professor_ssn, 1, 2) + substr(sysdate, 1, 2)) 나이
+select professor_name "교수이름"
+    ,trunc((months_between (sysdate, (concat('19', to_date(substr(professor_ssn, 1, 6), 'rrmmdd')))))/12) "나이"
 from tb_professor
 where substr(professor_ssn, 8, 1) = 1
-order by 나이
+order by 2;
+
+--다른 풀이
+select 교수이름, trunc((sysdate - 나이)/365)  --months_between은 윤년도 알아서 연산되지만, 이렇게 일수로 계산하면 윤년을 상정하지 않으므로 미세한 오차 발생
+from (select professor_name "교수이름"
+    ,case when substr(professor_ssn, 1, 2) > to_char(sysdate, 'yy') then to_date(19 || substr(professor_ssn, 1, 6))
+            else to_date(substr(professor_ssn, 1, 6), 'yymmdd')
+            end "나이"
+    from tb_professor
+    where substr(professor_ssn, 8, 1) in ('1', '3'))
+    order by 나이 desc
 ;
+
+--19 || substr(professor_ssn, 1, 6)
+--19 가 나온 이유 : select to_char(sysdate, 'yy') - mod(to_char(sysdate, 'yy'), 10)-1 from dual;
+select professor_name "교수이름"
+    ,case when substr(professor_ssn, 1, 2) > to_char(sysdate, 'yy') then to_date(19 || substr(professor_ssn, 1, 6))
+            else to_date(substr(professor_ssn, 1, 6), 'yymmdd')
+            end "나이"
+from tb_professor
+where substr(professor_ssn, 8, 1) in ('1', '3')
+;
+
+-- 시간날짜 나타내는 설정변경
+alter session set nls_date_format='yyyy-mm-dd hh24:mi:ss';
 
 --4
 select substr(professor_name, 2, 2) 이름
@@ -74,7 +98,9 @@ group by substr(term_no, 1, 4)
 ;
 
 --13
-select department_no "학과코드명", count(case when absence_yn in ('Y') then 1 else null end) "휴학생 수"
+select department_no "학과코드명"
+    --, count(case when absence_yn in ('Y') then 1 else null end) "휴학생 수"
+    ,count(decode (absence_yn, 'Y', 1)) "휴학생 수"
 from tb_student
 group by department_no
 order by department_no
