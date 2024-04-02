@@ -58,10 +58,12 @@ join tb_professor using (professor_no)
 
 --9
 select class_name, professor_name
-from tb_class
-join tb_professor using (department_no)
-join tb_department using (department_no)
-where category in ('인문사회')
+from tb_class c
+join tb_class_professor cp using (class_no)
+join tb_professor p using (professor_no)
+where c.department_no in (select department_no 
+                        from tb_department 
+                        where category in ('인문사회'))
 ;
 
 --10
@@ -182,7 +184,18 @@ from (
         order by avg(point) desc)
     where rownum = 1
         ;
-
+        
+--18.4 더 최적화된 답 
+select student_no, student_name
+from (select student_no, student_name, avg(point)
+    from tb_grade
+        join tb_student using (student_no)
+    where department_no = (select department_no
+                            from tb_department
+                            where department_name = '국어국문학과')
+    group by student_no, student_name
+    order by avg(point) desc)
+where rownum = 1;
 
 --19
 select department_name "계열 학과명", round(avg(point), 1) "전공평점"

@@ -115,7 +115,7 @@ order by student_name
 ;
 
 --15
-select substr(term_no, 1, 4) "년도", substr(term_no, 5, 2) "학기", round(avg(point), 1)
+select substr(term_no, 1, 4) "년도", nvl(substr(term_no, 5, 2), ' ') "학기", round(avg(point), 1)
 from tb_student
 join tb_grade using (student_no)
 where student_no = 'A112113'

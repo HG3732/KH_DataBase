@@ -19,6 +19,9 @@ modify no varchar2(10);
 alter table tb_category
 modify name varchar2(20);
 
+alter table tb_class_type
+modify name varchar2(20);
+
 --6
 alter table tb_class_type
 rename column no to class_type_no;
@@ -82,6 +85,11 @@ create view VW_학생일반정보_read_only
 as select student_no, student_name, student_address from tb_student
 with read only;
 
+--14.1
+CREATE OR REPLACE FORCE NONEDITIONABLE VIEW "CHOON"."VW_학생일반정보" ("STUDENT_NO", "STUDENT_NAME", "STUDENT_ADDRESS") AS 
+  select student_no, student_name, student_address from tb_student
+  with read only;
+
 --15
 select class_no "과목번호", class_name "과목이름", "누적수강생수(명)"
 from(
@@ -90,7 +98,6 @@ from tb_class c
 join tb_grade g using (class_no)
 where substr(term_no, 1, 4) < 2008
     and substr(term_no, 1, 4) > 2004
-    and not class_type in ('논문지도')
 group by class_no, class_name
 order by 순위)
 where 순위 < 4
